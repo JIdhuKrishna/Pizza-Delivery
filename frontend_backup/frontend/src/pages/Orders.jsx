@@ -1,0 +1,126 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import API from '../services/api'
+import Loader from '../components/Loader'
+
+const STATUS_STEPS = ['Order Received', 'In the Kitchen', 'Sent to Delivery', 'Delivered']
+
+const STATUS_COLORS = {
+  'Order Received': '#2563eb',
+  'In the Kitchen': '#d97706',
+  'Sent to Delivery': '#7c3aed',
+  'Delivered': '#059669',
+}
+
+function StatusTracker({ status }) {
+  const current = STATUS_STEPS.indexOf(status)
+  return (
+    <div style={{ marginTop: 16, marginBottom: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+        {STATUS_STEPS.map((step, i) => (
+          <>
+            <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: i < STATUS_STEPS.length - 1 ? '0 0 auto' : '0 0 auto' }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: i <= current ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : 'rgba(0,0,0,0.08)',
+                border: i <= current ? 'none' : '2px solid rgba(0,0,0,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: i === current ? '0 0 0 4px rgba(220,38,38,0.2)' : 'none',
+                animation: i === current ? 'pulseRed 2s infinite' : 'none',
+                transition: 'all 0.3s',
+                fontSize: '0.7rem', color: i <= current ? '#fff' : '#9ca3af', fontWeight: 700,
+                flexShrink: 0,
+              }}>{i < current ? '\u2713' : i + 1}</div>
+              <div style={{ fontSize: '0.67rem', fontWeight: i === current ? 700 : 500, color: i === current ? '#dc2626' : i < current ? '#374151' : '#9ca3af', marginTop: 5, textAlign: 'center', maxWidth: 60, lineHeight: 1.3 }}>
+                {step}
+              </div>
+            </div>
+            {i < STATUS_STEPS.length - 1 && (
+              <div key={`line-${i}`} style={{ flex: 1, height: 3, background: i < current ? 'linear-gradient(90deg,#dc2626,#e11d48)' : 'rgba(0,0,0,0.08)', borderRadius: 2, marginBottom: 20, marginLeft: 0, marginRight: 0, minWidth: 16 }} />
+            )}
+          </>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function Orders() {
+  const { user } = useAuth()
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.id) return
+    API.get(`/order/user/${user.id}`)
+      .then(r => setOrders(r.data || []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false))
+  }, [user])
+
+  if (loading) return <Loader />
+
+  return (
+    <div className="page-enter" style={{ paddingTop: 88, paddingBottom: 60, maxWidth: 900, margin: '0 auto', padding: '88px clamp(16px,4vw,40px) 60px' }}>
+      <div style={{ marginBottom: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 'clamp(1.8rem,3vw,2.3rem)', color: '#111827', marginBottom: 6 }}>My Orders</h1>
+          <p style={{ color: '#6b7280' }}>{orders.length} order{orders.length !== 1 ? 's' : ''} placed</p>
+        </div>
+        <Link to="/customize"><button className="btn-primary" style={{ padding: '11px 24px', fontSize: '0.9rem' }}>+ New Pizza</button></Link>
+      </div>
+
+      {orders.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+          <div style={{ fontSize: '5rem', marginBottom: 20 }}>🍕</div>
+          <h2 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: '1.4rem', color: '#111827', marginBottom: 12 }}>No orders yet</h2>
+          <p style={{ color: '#6b7280', marginBottom: 28 }}>Time to build your first custom pizza!</p>
+          <Link to="/customize"><button className="btn-primary" style={{ padding: '13px 32px' }}>Build a Pizza →</button></Link>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {[...orders].reverse().map(order => (
+            <div key={order._id} className="glass-card" style={{ padding: '24px 28px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: '0.95rem', color: '#111827', marginBottom: 4 }}>
+                    Order #{order._id.slice(-8).toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                    {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span className="badge" style={{
+                    background: `rgba(${STATUS_COLORS[order.orderStatus] === '#059669' ? '5,150,105' : STATUS_COLORS[order.orderStatus] === '#d97706' ? '217,119,6' : STATUS_COLORS[order.orderStatus] === '#7c3aed' ? '124,58,237' : '37,99,235'},0.1)`,
+                    color: STATUS_COLORS[order.orderStatus] || '#2563eb',
+                    border: `1px solid ${STATUS_COLORS[order.orderStatus] || '#2563eb'}40`,
+                  }}>{order.orderStatus}</span>
+                  <span className={order.paymentStatus === 'Paid' ? 'badge badge-success' : 'badge badge-warning'}>
+                    {order.paymentStatus || 'Pending'}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+                {order.pizzaBase && <span style={{ background: 'rgba(251,146,60,0.1)', color: '#ea580c', border: '1px solid rgba(251,146,60,0.2)', padding: '3px 10px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 500 }}>{order.pizzaBase}</span>}
+                {order.sauce && <span style={{ background: 'rgba(220,38,38,0.08)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.15)', padding: '3px 10px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 500 }}>{order.sauce}</span>}
+                {order.cheese && <span style={{ background: 'rgba(234,179,8,0.1)', color: '#ca8a04', border: '1px solid rgba(234,179,8,0.2)', padding: '3px 10px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 500 }}>{order.cheese}</span>}
+                {(order.veggies || []).map(v => <span key={v} style={{ background: 'rgba(5,150,105,0.08)', color: '#059669', border: '1px solid rgba(5,150,105,0.15)', padding: '3px 10px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 500 }}>{v}</span>)}
+                {(order.meat || []).map(m => <span key={m} style={{ background: 'rgba(220,38,38,0.06)', color: '#b91c1c', border: '1px solid rgba(220,38,38,0.12)', padding: '3px 10px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 500 }}>{m}</span>)}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <StatusTracker status={order.orderStatus} />
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.3rem', background: 'linear-gradient(135deg,#dc2626,#e11d48)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: 16, flexShrink: 0 }}>
+                  ₹{order.price}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
