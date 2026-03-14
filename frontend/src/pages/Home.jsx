@@ -1,10 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import API from '../services/api'
 import Loader from '../components/Loader'
-
-const PizzaModel = lazy(() => import('../components/PizzaModel'))
 
 export default function Home() {
   const { user } = useAuth()
@@ -65,7 +63,7 @@ export default function Home() {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             <Link to={user ? '/customize' : '/register'}>
               <button className="btn-primary" style={{ padding: '14px 36px', fontSize: '1rem' }}>
-                Build My Pizza →
+                Built My Pizza →
               </button>
             </Link>
             {!user && (
@@ -76,20 +74,68 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 3D Pizza */}
+        {/* Hero Visual */}
         <div style={{
-          flex: 1, minWidth: 280, height: 420,
-          borderRadius: 28,
-          background: 'rgba(255,255,255,0.6)',
+          flex: 1, minWidth: 300,
+          borderRadius: 32,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,240,240,0.7) 100%)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.85)',
-          boxShadow: '0 20px 60px rgba(220,38,38,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
-          overflow: 'hidden',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 24px 80px rgba(220,38,38,0.12), inset 0 1px 0 rgba(255,255,255,0.9)',
+          padding: '36px 32px',
+          display: 'flex', flexDirection: 'column', gap: 14,
         }}>
-          <Suspense fallback={<div style={{ fontSize: '6rem' }} className="bob">🍕</div>}>
-            <PizzaModel />
-          </Suspense>
+          {/* Big pizza image */}
+          <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.12)', position: 'relative' }}>
+            <img
+              src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=700&auto=format&fit=crop"
+              alt="Delicious pizza"
+              style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }}
+            />
+            <div style={{
+              position: 'absolute', top: 14, left: 14,
+              background: 'rgba(220,38,38,0.92)', color: '#fff',
+              fontWeight: 700, fontSize: '0.75rem', padding: '5px 12px',
+              borderRadius: 50, backdropFilter: 'blur(8px)',
+            }}>🔥 Most Popular</div>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            {[
+              { icon: '⭐', label: '4.9 Rating', sub: '2k+ reviews' },
+              { icon: '⚡', label: '30 mins', sub: 'Avg delivery' },
+              { icon: '🥗', label: '25+ Toppings', sub: 'Fresh daily' },
+            ].map(s => (
+              <div key={s.label} style={{
+                flex: 1, background: 'rgba(255,255,255,0.8)', borderRadius: 14,
+                padding: '12px 10px', textAlign: 'center',
+                border: '1px solid rgba(220,38,38,0.1)',
+              }}>
+                <div style={{ fontSize: '1.2rem', marginBottom: 2 }}>{s.icon}</div>
+                <div style={{ fontWeight: 700, fontSize: '0.78rem', color: '#111827' }}>{s.label}</div>
+                <div style={{ fontSize: '0.68rem', color: '#9ca3af', marginTop: 1 }}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Two small pizza images */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {[
+              { src: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&auto=format&fit=crop', label: 'Veggie Delight' },
+              { src: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&auto=format&fit=crop', label: 'Chicken BBQ' },
+            ].map(p => (
+              <div key={p.label} style={{ borderRadius: 14, overflow: 'hidden', position: 'relative', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                <img src={p.src} alt={p.label} style={{ width: '100%', height: 100, objectFit: 'cover', display: 'block' }} />
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.55))',
+                  padding: '18px 10px 8px',
+                  color: '#fff', fontSize: '0.72rem', fontWeight: 600,
+                }}>{p.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

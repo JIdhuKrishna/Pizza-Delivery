@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard'
 import CustomPizza from './pages/CustomPizza'
 import Checkout from './pages/Checkout'
 import Orders from './pages/Orders'
+import VerifyEmail from './pages/VerifyEmail'
 import AdminDashboard from './admin/AdminDashboard'
 import AdminOrders from './admin/AdminOrders'
 import Inventory from './admin/Inventory'
@@ -27,6 +28,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify/:token" element={<VerifyEmail />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/customize" element={<ProtectedRoute><CustomPizza /></ProtectedRoute>} />
               <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

@@ -57,7 +57,7 @@ export default function Navbar() {
         textDecoration: 'none', marginRight: 'auto', display: 'flex', alignItems: 'center', gap: 8,
         flexShrink: 0,
       }}>
-        🍕 PizzaCraft
+        🍕 DEvZA
       </Link>
 
       {/* Desktop Links */}

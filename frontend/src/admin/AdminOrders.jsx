@@ -19,22 +19,29 @@ export default function AdminOrders() {
   const [updating, setUpdating] = useState({})
   const { addToast } = useToast()
 
-  useEffect(() => {
+  const fetchOrders = () => {
+    setLoading(true)
     API.get('/order/')
       .then(r => setOrders(r.data || []))
       .catch(() => addToast('Failed to load orders', 'error'))
       .finally(() => setLoading(false))
-  }, [addToast])
+  }
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
 
   async function updateStatus(orderId, newStatus) {
     setUpdating(u => ({ ...u, [orderId]: true }))
     try {
-      const { data } = await API.put(`/order/status/${orderId}`, { status: newStatus })
+      await API.put(`/order/status/${orderId}`, { status: newStatus })
       setOrders(prev => prev.map(o => o._id === orderId ? { ...o, orderStatus: newStatus } : o))
-      addToast(`Order updated to ${newStatus}!`, 'success')
+      addToast(`Status → ${newStatus}`, 'success')
     } catch (err) {
-      console.error("Update error:", err)
-      addToast('Failed to update status', 'error')
+      console.error('Update error:', err)
+      addToast(err.response?.data?.message || 'Failed to update status', 'error')
+      // Revert local state on failure by re-fetching
+      fetchOrders()
     } finally {
       setUpdating(u => ({ ...u, [orderId]: false }))
     }
@@ -46,9 +53,14 @@ export default function AdminOrders() {
 
   return (
     <div className="page-enter" style={{ paddingTop: 88, paddingBottom: 60, maxWidth: 1280, margin: '0 auto', padding: '88px clamp(16px,4vw,40px) 60px' }}>
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 'clamp(1.6rem,3vw,2.2rem)', color: '#111827', marginBottom: 6 }}>Order Management</h1>
-        <p style={{ color: '#6b7280' }}>{orders.length} total orders</p>
+      <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h1 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 'clamp(1.6rem,3vw,2.2rem)', color: '#111827', marginBottom: 6 }}>Order Management</h1>
+          <p style={{ color: '#6b7280' }}>{orders.length} total orders</p>
+        </div>
+        <button onClick={fetchOrders} style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          ↻ Refresh
+        </button>
       </div>
 
       {/* Filter */}
@@ -84,11 +96,18 @@ export default function AdminOrders() {
                     <div style={{ fontSize: '0.75rem', color: '#b0b7c3', marginTop: 2 }}>#{order._id.slice(-8).toUpperCase()}</div>
                   </div>
 
-                  {/* Ingredients */}
+                  {/* Order items / ingredients */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {[order.pizzaBase, order.sauce, order.cheese, ...(order.veggies || []), ...(order.meat || [])].filter(Boolean).map((item, i) => (
-                      <span key={i} style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.07)', padding: '2px 9px', borderRadius: 50, fontSize: '0.73rem', color: '#374151', fontWeight: 500 }}>{item}</span>
-                    ))}
+                    {order.items && order.items.length > 0
+                      ? order.items.map((item, i) => (
+                          <span key={i} style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)', padding: '2px 9px', borderRadius: 50, fontSize: '0.73rem', color: '#dc2626', fontWeight: 500 }}>
+                            {item.quantity}× {item.name}
+                          </span>
+                        ))
+                      : [order.pizzaBase, order.sauce, order.cheese, ...(order.veggies || []), ...(order.meat || [])].filter(Boolean).map((item, i) => (
+                          <span key={i} style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.07)', padding: '2px 9px', borderRadius: 50, fontSize: '0.73rem', color: '#374151', fontWeight: 500 }}>{item}</span>
+                        ))
+                    }
                   </div>
 
                   {/* Actions */}

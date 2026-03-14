@@ -15,29 +15,53 @@ const STATUS_COLORS = {
 
 function StatusTracker({ status }) {
   const current = STATUS_STEPS.indexOf(status)
+  const isDelivered = status === 'Delivered'
+
+  const getCircleBg = (i) => {
+    if (!i <= current) return 'rgba(0,0,0,0.08)'
+    if (i === 3 && isDelivered) return 'linear-gradient(135deg,#059669,#047857)' // green for Delivered
+    if (i <= current) return 'linear-gradient(135deg,#dc2626,#b91c1c)'
+    return 'rgba(0,0,0,0.08)'
+  }
+
+  const getLineBg = (i) => {
+    if (i < current) {
+      if (isDelivered) return 'linear-gradient(90deg,#dc2626,#059669)'
+      return 'linear-gradient(90deg,#dc2626,#e11d48)'
+    }
+    return 'rgba(0,0,0,0.08)'
+  }
+
+  const getLabelColor = (i) => {
+    if (i === current && isDelivered) return '#059669'
+    if (i === current) return '#dc2626'
+    if (i < current) return '#374151'
+    return '#9ca3af'
+  }
+
   return (
     <div style={{ marginTop: 16, marginBottom: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
         {STATUS_STEPS.map((step, i) => (
           <>
-            <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: i < STATUS_STEPS.length - 1 ? '0 0 auto' : '0 0 auto' }}>
+            <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '0 0 auto' }}>
               <div style={{
                 width: 28, height: 28, borderRadius: '50%',
-                background: i <= current ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : 'rgba(0,0,0,0.08)',
+                background: i <= current ? getCircleBg(i) : 'rgba(0,0,0,0.08)',
                 border: i <= current ? 'none' : '2px solid rgba(0,0,0,0.12)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: i === current ? '0 0 0 4px rgba(220,38,38,0.2)' : 'none',
-                animation: i === current ? 'pulseRed 2s infinite' : 'none',
-                transition: 'all 0.3s',
+                boxShadow: i === current && isDelivered ? '0 0 0 4px rgba(5,150,105,0.25)'
+                          : i === current ? '0 0 0 4px rgba(220,38,38,0.2)' : 'none',
+                transition: 'all 0.4s',
                 fontSize: '0.7rem', color: i <= current ? '#fff' : '#9ca3af', fontWeight: 700,
                 flexShrink: 0,
-              }}>{i < current ? '\u2713' : i + 1}</div>
-              <div style={{ fontSize: '0.67rem', fontWeight: i === current ? 700 : 500, color: i === current ? '#dc2626' : i < current ? '#374151' : '#9ca3af', marginTop: 5, textAlign: 'center', maxWidth: 60, lineHeight: 1.3 }}>
+              }}>{i <= current ? '✓' : i + 1}</div>
+              <div style={{ fontSize: '0.67rem', fontWeight: i === current ? 700 : 500, color: getLabelColor(i), marginTop: 5, textAlign: 'center', maxWidth: 60, lineHeight: 1.3 }}>
                 {step}
               </div>
             </div>
             {i < STATUS_STEPS.length - 1 && (
-              <div key={`line-${i}`} style={{ flex: 1, height: 3, background: i < current ? 'linear-gradient(90deg,#dc2626,#e11d48)' : 'rgba(0,0,0,0.08)', borderRadius: 2, marginBottom: 20, marginLeft: 0, marginRight: 0, minWidth: 16 }} />
+              <div key={`line-${i}`} style={{ flex: 1, height: 3, background: getLineBg(i), borderRadius: 2, marginBottom: 20, minWidth: 16, transition: 'background 0.4s' }} />
             )}
           </>
         ))}
@@ -87,8 +111,26 @@ export default function Orders() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {[...orders].reverse().map(order => (
-            <div key={order._id} className="glass-card" style={{ padding: '24px 28px' }}>
+          {[...orders].reverse().map(order => {
+            const isDelivered = order.orderStatus === 'Delivered'
+            return (
+            <div key={order._id} className="glass-card" style={{
+              padding: '24px 28px',
+              border: isDelivered ? '1.5px solid rgba(5,150,105,0.35)' : undefined,
+              background: isDelivered ? 'linear-gradient(135deg,rgba(5,150,105,0.04),rgba(255,255,255,0.7))' : undefined,
+              transition: 'all 0.5s',
+            }}>
+              {isDelivered && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.25)',
+                  borderRadius: 10, padding: '8px 14px', marginBottom: 16,
+                  color: '#059669', fontWeight: 700, fontSize: '0.88rem',
+                }}>
+                  <span style={{ fontSize: '1.1rem' }}>✅</span>
+                  Your pizza has been delivered! Enjoy 🍕 — This order will disappear shortly.
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: '0.95rem', color: '#111827', marginBottom: 4 }}>
@@ -104,9 +146,7 @@ export default function Orders() {
                     color: STATUS_COLORS[order.orderStatus] || '#2563eb',
                     border: `1px solid ${STATUS_COLORS[order.orderStatus] || '#2563eb'}40`,
                   }}>{order.orderStatus}</span>
-                  <span className={order.paymentStatus === 'Paid' ? 'badge badge-success' : 'badge badge-warning'}>
-                    {order.paymentStatus || 'Pending'}
-                  </span>
+                  <span className="badge badge-success">Paid</span>
                 </div>
               </div>
 
@@ -135,12 +175,13 @@ export default function Orders() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <StatusTracker status={order.orderStatus} />
-                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.3rem', background: 'linear-gradient(135deg,#dc2626,#e11d48)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: 16, flexShrink: 0 }}>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.3rem', background: isDelivered ? 'linear-gradient(135deg,#059669,#047857)' : 'linear-gradient(135deg,#dc2626,#e11d48)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: 16, flexShrink: 0 }}>
                   ₹{order.price}
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

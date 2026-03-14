@@ -47,7 +47,7 @@ exports.registerUser = async (req, res) => {
     await user.save();
 
     // verification link
-    const verifyURL = `http://localhost:5000/api/auth/verify/${verificationToken}`;
+    const verifyURL = `http://localhost:5173/verify/${verificationToken}`;
 
     // Always log for dev — works even if email fails
     console.log(`\n[EMAIL VERIFICATION LINK] ${verifyURL}\n`);

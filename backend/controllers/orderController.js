@@ -91,9 +91,10 @@ exports.getUserOrders = async (req, res) => {
     const orders = await Order.find({
       userId,
       $or: [
+        // Show all non-delivered orders
         { orderStatus: { $ne: "Delivered" } },
-        { deliveredAt: { $gt: fiveMinutesAgo } },
-        { deliveredAt: null }
+        // Show delivered orders only if delivered within last 5 minutes
+        { orderStatus: "Delivered", deliveredAt: { $gt: fiveMinutesAgo } }
       ]
     });
 
@@ -136,8 +137,8 @@ exports.updateOrderStatus = async (req, res) => {
       try {
         await sendEmail(
           order.userId.email,
-          "🍕 Your PizzaCraft Order Has Been Delivered!",
-          `Hi ${order.userId.name || "Customer"},\n\nGreat news! Your order #${orderId.slice(-8).toUpperCase()} has been delivered!\n\nOrder: ${orderDesc}\nTotal: ₹${order.price}\n\nThank you for choosing PizzaCraft. Enjoy your pizza! 🍕\n\nTeam PizzaCraft`
+          "🍕 Your DEvZA Order Has Been Delivered!",
+          `Hi ${order.userId.name || "Customer"},\n\nGreat news! Your order #${orderId.slice(-8).toUpperCase()} has been delivered!\n\nOrder: ${orderDesc}\nTotal: ₹${order.price}\n\nThank you for choosing DEvZA. Enjoy your pizza! 🍕\n\nTeam DEvZA`
         );
       } catch (emailErr) {
         console.error("Delivery email failed:", emailErr.message);
