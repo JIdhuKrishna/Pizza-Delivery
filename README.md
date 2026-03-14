@@ -1,42 +1,35 @@
 🍕 DEvZA Pizza Delivery
 
-A full-stack pizza ordering and admin management web application built with the MERN stack.
-This system allows users to customize pizzas, place orders, and complete payments while providing an admin dashboard for order and inventory management.
+A full-stack pizza ordering web application where users can customize pizzas, place orders, and make payments.
+The system also includes an admin dashboard for managing orders and inventory.
 
 🚀 Features
-👤 User Features
+User
 
 User registration and login
 
-Email verification system
+Email verification
 
-Forgot password and reset password functionality
+Forgot and reset password
 
-Custom pizza builder with ingredient selection
+Custom pizza builder
 
-Secure checkout process
+Checkout and payment
 
-Order tracking system
+Order tracking
 
-👨‍💼 Admin Features
+Admin
 
-Admin login with role-based access
+Order management
 
-Order management system
+Inventory management
 
-Update order status
+Stock update after orders
 
-Inventory management system
-
-Automatic stock updates after orders
-
-Low-stock email alerts
-
-💳 Payment Integration
-
-This project integrates Razorpay Payment Gateway (Test Mode) to simulate secure online payments during checkout.
+Low stock alert emails
 
 🛠 Tech Stack
+
 Frontend
 
 React.js
@@ -47,9 +40,55 @@ React Router
 
 Axios
 
-HTML & CSS
-
 Backend
+
+Node.js
+
+Express.js
+
+MongoDB (Mongoose)
+
+Other Integrations
+
+JWT Authentication
+
+Razorpay Payment Gateway
+
+Nodemailer Email Service
+
+⚙️ Setup
+
+Clone the repository
+
+git clone https://github.com/yourusername/devza-pizza-delivery.git
+
+
+Install dependencies
+
+npm install
+
+
+Run the project
+
+npm run dev
+
+🔑 Environment Variables
+
+Create .env inside backend folder.
+
+PORT=5000
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret
+
+EMAIL_USER=your_email
+EMAIL_PASS=your_app_password
+
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
+
+📚 Technologies Used
+
+React.js
 
 Node.js
 
@@ -57,200 +96,23 @@ Express.js
 
 MongoDB
 
-Mongoose
+Razorpay API
 
-Authentication
+🔗 GitHub Repository
 
-JSON Web Token (JWT)
+Add your repository link here.
 
-Email verification system
+⭐ Acknowledgement
 
-Password reset flow
+This project was developed during my Full Stack Web Development Internship at Oasis Infobyte.
 
-Integrations
+🎯 Perfect README Rule
 
-Razorpay Payment Gateway
+For student projects keep it:
 
-Nodemailer Email Service
-
-📂 Project Structure
-DEvZA-Pizza-Delivery
-│
-├── backend
-│   ├── config
-│   │   └── db.js
-│   ├── controllers
-│   │   ├── authController.js
-│   │   ├── orderController.js
-│   │   ├── inventoryController.js
-│   │   └── paymentController.js
-│   ├── middleware
-│   │   └── authMiddleware.js
-│   ├── models
-│   │   ├── User.js
-│   │   ├── Order.js
-│   │   └── Inventory.js
-│   ├── routes
-│   │   ├── authRoutes.js
-│   │   ├── orderRoutes.js
-│   │   ├── inventoryRoutes.js
-│   │   └── paymentRoutes.js
-│   └── server.js
-│
-├── frontend
-│   ├── src
-│   │   ├── pages
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── CustomPizza.jsx
-│   │   │   ├── Checkout.jsx
-│   │   │   └── Orders.jsx
-│   │   ├── components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── PizzaCard.jsx
-│   │   │   └── Loader.jsx
-│   │   ├── admin
-│   │   │   ├── AdminDashboard.jsx
-│   │   │   ├── AdminOrders.jsx
-│   │   │   └── Inventory.jsx
-│   │   └── services
-│   │       └── api.js
-│   └── App.jsx
-│
-└── README.md
-
-⚙️ Prerequisites
-
-Before running the project, make sure you have:
-
-Node.js (v18 or higher)
-
-MongoDB installed locally or MongoDB Atlas
-
-Gmail App Password (for email service)
-
-🔑 Environment Variables
-
-Create a .env file inside the backend folder.
-
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/pizzaDB
-JWT_SECRET=your_jwt_secret
-
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_gmail_app_password
-ADMIN_EMAIL=admin_email@gmail.com
-
-FRONTEND_URL=http://localhost:5173
-
-RAZORPAY_KEY_ID=your_razorpay_key
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-
-📦 Installation
-
-Clone the repository
-
-git clone https://github.com/yourusername/devza-pizza-delivery.git
-
-
-Navigate into the project
-
-cd devza-pizza-delivery
-
-
-Install dependencies
-
-npm run install:all
-
-▶️ Run the Project
-
-Run frontend and backend together
-
-npm run dev
-
-
-Or run separately
-
-npm run dev:backend
-npm run dev:frontend
-
-🌐 Default Local URLs
-
-Frontend
-
-http://localhost:5173
-
-
-Backend API
-
-http://localhost:5000/api
-
-🔐 Authentication Endpoints
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/auth/verify/:token
-POST /api/auth/forgot-password
-POST /api/auth/reset-password/:token
-
-🔁 Forgot Password Flow
-
-User clicks Forgot Password on login page
-
-Frontend calls /api/auth/forgot-password
-
-Backend sends reset email
-
-User opens reset link
-
-Frontend calls /api/auth/reset-password/:token
-
-Password gets updated
-
-📊 Inventory Low Stock Alert
-
-When an ingredient quantity falls below the threshold:
-
-The backend automatically sends a warning email to admin
-
-Admin can restock inventory from the dashboard
-
-📸 Screenshots
-
-(Add screenshots of your project here)
-
-Example:
-
-Login Page
-
-Pizza Builder
-
-Checkout Page
-
-Admin Dashboard
-
-Inventory Management
-
-📚 Learning Outcomes
-
-Through this project I gained hands-on experience in:
-
-Full Stack Web Development
-
-REST API development
-
-Authentication & Authorization
-
-Payment Gateway Integration
-
-MongoDB Database Design
-
-Inventory Management Systems
-
-🤝 Acknowledgement
-
-This project was developed as part of the Full Stack Web Development Internship at Oasis Infobyte.
-
-📄 License
-
-This project is for educational purposes.
+Project description
+Features
+Tech stack
+Setup
+Environment variables
+Acknowledgement
